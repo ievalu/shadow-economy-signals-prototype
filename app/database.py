@@ -72,73 +72,6 @@ def create_tables(connection: sqlite3.Connection) -> None:
     """)
 
     connection.execute("""
-    CREATE TABLE IF NOT EXISTS vmi_entities (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        source_record_key TEXT UNIQUE NOT NULL,
-        company_code TEXT,
-        vat_code TEXT,
-        legal_name TEXT,
-        status TEXT,
-        address TEXT,
-        registration_date TEXT,
-        deregistration_date TEXT,
-        source_file TEXT,
-        source_sheet TEXT,
-        imported_at TEXT NOT NULL
-    )
-""")
-
-    connection.execute("""
-        CREATE UNIQUE INDEX IF NOT EXISTS idx_vmi_entities_company_code
-        ON vmi_entities(company_code)
-        WHERE company_code IS NOT NULL
-    """)
-
-    connection.execute("""
-        CREATE TABLE IF NOT EXISTS vmi_tax_records (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            source_record_key TEXT UNIQUE NOT NULL,
-            source_type TEXT,
-            source_id TEXT,
-            source_revision TEXT,
-            company_code TEXT,
-            taxpayer_internal_id TEXT,
-            legal_name TEXT,
-            legal_type TEXT,
-            county_id TEXT,
-            municipality_id TEXT,
-            previous_year_amount REAL,
-            current_year_amount REAL,
-            year INTEGER,
-            month INTEGER,
-            amount REAL,
-            source_updated_at TEXT,
-            source_file TEXT,
-            imported_at TEXT NOT NULL
-        )
-    """)
-
-    connection.execute("""
-        CREATE TABLE IF NOT EXISTS vmi_verifications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            google_place_id TEXT,
-            business_name TEXT NOT NULL,
-            website_legal_name TEXT,
-            website_company_code TEXT,
-            website_vat_code TEXT,
-            match_status TEXT NOT NULL,
-            match_method TEXT,
-            vmi_company_code TEXT,
-            vmi_vat_code TEXT,
-            vmi_legal_name TEXT,
-            vmi_status TEXT,
-            vmi_address TEXT,
-            checked_at TEXT NOT NULL,
-            UNIQUE(google_place_id)
-        )
-    """)
-
-    connection.execute("""
         CREATE TABLE IF NOT EXISTS rc_entities (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             ja_kodas TEXT UNIQUE NOT NULL,
@@ -201,6 +134,49 @@ def create_tables(connection: sqlite3.Connection) -> None:
         )
     """)
 
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_google_maps_businesses_category
+        ON google_maps_businesses(category_key)
+    """)
+
+    connection.execute("""
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_google_maps_businesses_name_address_no_place
+        ON google_maps_businesses(business_name, address)
+        WHERE google_place_id IS NULL
+          AND business_name IS NOT NULL
+          AND address IS NOT NULL
+    """)
+
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_legal_entity_candidates_place_id
+        ON legal_entity_candidates(google_place_id)
+    """)
+
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_legal_entity_candidates_company_code
+        ON legal_entity_candidates(company_code)
+    """)
+
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_rc_entities_name
+        ON rc_entities(ja_pavadinimas)
+    """)
+
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_rc_financial_records_ja_kodas
+        ON rc_financial_records(ja_kodas)
+    """)
+
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_rc_financial_records_line_name
+        ON rc_financial_records(line_name)
+    """)
+
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_rc_verifications_place_id
+        ON rc_verifications(google_place_id)
+    """)
+
     connection.commit()
 
 
@@ -208,7 +184,7 @@ def serialize_json(value) -> str | None:
     if value is None:
         return None
 
-    return json.dumps(value, ensure_ascii=False)
+    return json.dumps(value, ensure_ascii=False, default=str)
 
 
 def insert_google_maps_business(
@@ -286,10 +262,16 @@ def insert_google_maps_businesses(
     connection: sqlite3.Connection,
     businesses: list[dict],
 ) -> None:
-    for business in businesses:
-        insert_google_maps_business(connection, business)
+    try:
+        for business in businesses:
+            insert_google_maps_business(connection, business)
 
-    connection.commit()
+        connection.commit()
+
+    except Exception:
+        connection.rollback()
+        raise
+
 
 def insert_google_activity_score(
     connection: sqlite3.Connection,
@@ -328,10 +310,16 @@ def insert_google_activity_scores(
     connection: sqlite3.Connection,
     score_records: list[dict],
 ) -> None:
-    for score_record in score_records:
-        insert_google_activity_score(connection, score_record)
+    try:
+        for score_record in score_records:
+            insert_google_activity_score(connection, score_record)
 
-    connection.commit()
+        connection.commit()
+
+    except Exception:
+        connection.rollback()
+        raise
+
 
 def insert_legal_entity_candidate(
     connection: sqlite3.Connection,
@@ -385,197 +373,16 @@ def insert_legal_entity_candidates(
     connection: sqlite3.Connection,
     candidates: list[dict],
 ) -> None:
-    for candidate in candidates:
-        insert_legal_entity_candidate(connection, candidate)
+    try:
+        for candidate in candidates:
+            insert_legal_entity_candidate(connection, candidate)
 
-    connection.commit()
+        connection.commit()
 
-def insert_vmi_entity(
-    connection: sqlite3.Connection,
-    record: dict,
-) -> None:
-    connection.execute("""
-        INSERT INTO vmi_entities (
-            source_record_key,
-            company_code,
-            vat_code,
-            legal_name,
-            status,
-            address,
-            registration_date,
-            deregistration_date,
-            source_file,
-            source_sheet,
-            imported_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(source_record_key) DO UPDATE SET
-            company_code = excluded.company_code,
-            vat_code = excluded.vat_code,
-            legal_name = excluded.legal_name,
-            status = excluded.status,
-            address = excluded.address,
-            registration_date = excluded.registration_date,
-            deregistration_date = excluded.deregistration_date,
-            source_file = excluded.source_file,
-            source_sheet = excluded.source_sheet,
-            imported_at = excluded.imported_at
-    """, (
-        record.get("source_record_key"),
-        record.get("company_code"),
-        record.get("vat_code"),
-        record.get("legal_name"),
-        record.get("status"),
-        record.get("address"),
-        record.get("registration_date"),
-        record.get("deregistration_date"),
-        record.get("source_file"),
-        record.get("source_sheet"),
-        record.get("imported_at"),
-    ))
+    except Exception:
+        connection.rollback()
+        raise
 
-
-def insert_vmi_tax_record(
-    connection: sqlite3.Connection,
-    record: dict,
-) -> None:
-    connection.execute("""
-        INSERT INTO vmi_tax_records (
-            source_record_key,
-            source_type,
-            source_id,
-            source_revision,
-            company_code,
-            taxpayer_internal_id,
-            legal_name,
-            legal_type,
-            county_id,
-            municipality_id,
-            previous_year_amount,
-            current_year_amount,
-            year,
-            month,
-            amount,
-            source_updated_at,
-            source_file,
-            imported_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(source_record_key) DO UPDATE SET
-            source_type = excluded.source_type,
-            source_id = excluded.source_id,
-            source_revision = excluded.source_revision,
-            company_code = excluded.company_code,
-            taxpayer_internal_id = excluded.taxpayer_internal_id,
-            legal_name = excluded.legal_name,
-            legal_type = excluded.legal_type,
-            county_id = excluded.county_id,
-            municipality_id = excluded.municipality_id,
-            previous_year_amount = excluded.previous_year_amount,
-            current_year_amount = excluded.current_year_amount,
-            year = excluded.year,
-            month = excluded.month,
-            amount = excluded.amount,
-            source_updated_at = excluded.source_updated_at,
-            source_file = excluded.source_file,
-            imported_at = excluded.imported_at
-    """, (
-        record.get("source_record_key"),
-        record.get("source_type"),
-        record.get("source_id"),
-        record.get("source_revision"),
-        record.get("company_code"),
-        record.get("taxpayer_internal_id"),
-        record.get("legal_name"),
-        record.get("legal_type"),
-        record.get("county_id"),
-        record.get("municipality_id"),
-        record.get("previous_year_amount"),
-        record.get("current_year_amount"),
-        record.get("year"),
-        record.get("month"),
-        record.get("amount"),
-        record.get("source_updated_at"),
-        record.get("source_file"),
-        record.get("imported_at"),
-    ))
-
-
-def insert_vmi_records(
-    connection: sqlite3.Connection,
-    entity_records: list[dict],
-    tax_records: list[dict],
-) -> None:
-    for record in entity_records:
-        insert_vmi_entity(connection, record)
-
-    for record in tax_records:
-        insert_vmi_tax_record(connection, record)
-
-    connection.commit()
-
-def insert_vmi_verification(
-    connection: sqlite3.Connection,
-    record: dict,
-) -> None:
-    connection.execute("""
-        INSERT INTO vmi_verifications (
-            google_place_id,
-            business_name,
-            website_legal_name,
-            website_company_code,
-            website_vat_code,
-            match_status,
-            match_method,
-            vmi_company_code,
-            vmi_vat_code,
-            vmi_legal_name,
-            vmi_status,
-            vmi_address,
-            checked_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(google_place_id) DO UPDATE SET
-            business_name = excluded.business_name,
-            website_legal_name = excluded.website_legal_name,
-            website_company_code = excluded.website_company_code,
-            website_vat_code = excluded.website_vat_code,
-            match_status = excluded.match_status,
-            match_method = excluded.match_method,
-            vmi_company_code = excluded.vmi_company_code,
-            vmi_vat_code = excluded.vmi_vat_code,
-            vmi_legal_name = excluded.vmi_legal_name,
-            vmi_status = excluded.vmi_status,
-            vmi_address = excluded.vmi_address,
-            checked_at = excluded.checked_at
-    """, (
-        record.get("google_place_id"),
-        record.get("business_name"),
-        record.get("website_legal_name"),
-        record.get("website_company_code"),
-        record.get("website_vat_code"),
-        record.get("match_status"),
-        record.get("match_method"),
-        record.get("vmi_company_code"),
-        record.get("vmi_vat_code"),
-        record.get("vmi_legal_name"),
-        record.get("vmi_status"),
-        record.get("vmi_address"),
-        record.get("checked_at"),
-    ))
-
-
-def insert_vmi_verifications(
-    connection: sqlite3.Connection,
-    records: list[dict],
-) -> None:
-    for record in records:
-        insert_vmi_verification(
-            connection=connection,
-            record=record,
-        )
-
-    connection.commit()
 
 def insert_rc_entity(
     connection: sqlite3.Connection,
@@ -696,13 +503,18 @@ def insert_rc_records(
     entity_records: list[dict],
     financial_records: list[dict],
 ) -> None:
-    for record in entity_records:
-        insert_rc_entity(connection, record)
+    try:
+        for record in entity_records:
+            insert_rc_entity(connection, record)
 
-    for record in financial_records:
-        insert_rc_financial_record(connection, record)
+        for record in financial_records:
+            insert_rc_financial_record(connection, record)
 
-    connection.commit()
+        connection.commit()
+
+    except Exception:
+        connection.rollback()
+        raise
 
 
 def insert_rc_verification(
@@ -763,7 +575,12 @@ def insert_rc_verifications(
     connection: sqlite3.Connection,
     records: list[dict],
 ) -> None:
-    for record in records:
-        insert_rc_verification(connection, record)
+    try:
+        for record in records:
+            insert_rc_verification(connection, record)
 
-    connection.commit()
+        connection.commit()
+
+    except Exception:
+        connection.rollback()
+        raise

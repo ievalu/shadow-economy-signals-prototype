@@ -26,14 +26,24 @@ LEGAL_NAME_SUFFIX_PATTERN = re.compile(
 )
 
 COMPANY_CODE_PATTERN = re.compile(
-    r"(?:įmonės\s+kodas|imones\s+kodas|juridinio\s+asmens\s+kodas|company\s+code)"
-    r"[\s:–-]*([0-9]{7,9})",
+    r"(?:"
+    r"įmonės\s+kodas|imones\s+kodas|įmonės\s+kod\.?|imones\s+kod\.?|"
+    r"įm\.\s*kodas|im\.\s*kodas|"
+    r"į/k|i/k|"
+    r"juridinio\s+asmens\s+kodas|juridinio\s+asmens\s+kod\.?|"
+    r"j\.\s*a\.\s*kodas|"
+    r"company\s+code"
+    r")"
+    r"[\s:–\-/]*([0-9]{7,9})",
     re.IGNORECASE,
 )
 
 VAT_CODE_PATTERN = re.compile(
-    r"(?:pvm\s+kodas|pvm\s+mokėtojo\s+kodas|vat\s+code)"
-    r"[\s:–-]*(LT[0-9]{9,12})",
+    r"(?:"
+    r"pvm\s+kodas|pvm\s+kod\.?|pvm\s+mokėtojo\s+kodas|pvm\s+moketojo\s+kodas|"
+    r"vat\s+code|vat\s+number|vat\s+no\.?"
+    r")"
+    r"[\s:–\-/]*(LT[0-9]{9,12})",
     re.IGNORECASE,
 )
 
@@ -150,6 +160,8 @@ def fetch_url(url: str, timeout_seconds: int = 15) -> str | None:
                 url,
             )
             return None
+
+        response.encoding = response.apparent_encoding or response.encoding
 
         return response.text
 

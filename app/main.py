@@ -1,10 +1,9 @@
 import json
 import logging
-import re
 import time
-import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 from app.activity_scoring import calculate_google_activity_score
 from app.config import get_settings
@@ -20,6 +19,7 @@ from app.serpapi_client import (
     SerpApiClient,
     parse_google_maps_businesses,
 )
+from app.text_utils import normalize_name
 from app.website_legal_extractor import extract_legal_signals_from_website
 
 
@@ -199,6 +199,13 @@ def build_activity_score_records(
     return score_records
 
 
+def get_effective_max_websites(max_websites_to_check: int) -> int | None:
+    if max_websites_to_check <= 0:
+        return None
+
+    return max_websites_to_check
+
+
 def build_legal_entity_candidates(
     businesses: list[dict],
     scraped_at: str,
@@ -224,7 +231,7 @@ def build_legal_entity_candidates(
         website = business.get("website")
         business_name = business.get("business_name")
 
-        logger.info(
+        logger.debug(
             "Extracting legal signals business=%s website=%s",
             business_name,
             website,
@@ -255,7 +262,7 @@ def build_legal_entity_candidates(
 
         candidates.append(candidate)
 
-        logger.info(
+        logger.debug(
             (
                 "Legal candidate business=%s | confidence=%s | "
                 "legal_name=%s | company_code=%s | vat_code=%s"
@@ -272,48 +279,23 @@ def build_legal_entity_candidates(
     return candidates
 
 
-def normalize_name(value: str | None) -> str | None:
-    if not value:
-        return None
-
-    value = value.lower().strip()
-
-    value = unicodedata.normalize("NFKD", value)
-    value = "".join(
-        character
-        for character in value
-        if not unicodedata.combining(character)
-    )
-
-    legal_form_replacements = {
-        "uzdaroji akcine bendrove": "",
-        "mazoji bendrija": "",
-        "akcine bendrove": "",
-        "viesoji istaiga": "",
-        "individuali imone": "",
-        "uab": "",
-        "mb": "",
-        "ab": "",
-        "vsi": "",
-        "všį": "",
-        "ii": "",
-        "iį": "",
-    }
-
-    for old_value, new_value in legal_form_replacements.items():
-        value = value.replace(old_value, new_value)
-
-    value = value.replace('"', " ")
-    value = value.replace("„", " ")
-    value = value.replace("“", " ")
-
-    value = re.sub(r"[^a-z0-9]+", " ", value)
-    value = re.sub(r"\s+", " ", value)
-
-    return value.strip() or None
+def load_rc_entities_for_matching(connection) -> list:
+    return connection.execute("""
+        SELECT
+            ja_kodas,
+            ja_pavadinimas,
+            form_pavadinimas,
+            stat_pavadinimas
+        FROM rc_entities
+        WHERE ja_pavadinimas IS NOT NULL
+    """).fetchall()
 
 
-def find_rc_match(connection, candidate: dict):
+def find_rc_match(
+    connection,
+    candidate: dict,
+    rc_entities: list,
+):
     company_code = candidate.get("company_code")
     legal_name = candidate.get("legal_name")
 
@@ -336,23 +318,13 @@ def find_rc_match(connection, candidate: dict):
         normalized_candidate_name = normalize_name(legal_name)
 
         if normalized_candidate_name:
-            rows = connection.execute("""
-                SELECT
-                    ja_kodas,
-                    ja_pavadinimas,
-                    form_pavadinimas,
-                    stat_pavadinimas
-                FROM rc_entities
-                WHERE ja_pavadinimas IS NOT NULL
-            """).fetchall()
-
-            for row in rows:
+            for row in rc_entities:
                 normalized_rc_name = normalize_name(row["ja_pavadinimas"])
 
                 if normalized_rc_name == normalized_candidate_name:
                     return "matched", "legal_name_normalized_exact", row
 
-            for row in rows:
+            for row in rc_entities:
                 normalized_rc_name = normalize_name(row["ja_pavadinimas"])
 
                 if not normalized_rc_name:
@@ -415,6 +387,8 @@ def build_rc_verification_records(
         FROM legal_entity_candidates
     """).fetchall()
 
+    rc_entities = load_rc_entities_for_matching(connection)
+
     records = []
 
     for candidate_row in candidates:
@@ -429,10 +403,11 @@ def build_rc_verification_records(
         match_status, match_method, rc_row = find_rc_match(
             connection=connection,
             candidate=candidate,
+            rc_entities=rc_entities,
         )
 
         rc_latest_revenue = None
-        rc_latest_profit = None
+        rc_latest_profit_signal = None
 
         if rc_row:
             rc_latest_revenue = get_latest_rc_financial_value(
@@ -443,12 +418,13 @@ def build_rc_verification_records(
                 ],
             )
 
-            rc_latest_profit = get_latest_rc_financial_value(
+            rc_latest_profit_signal = get_latest_rc_financial_value(
                 connection=connection,
                 ja_kodas=rc_row["ja_kodas"],
                 line_name_keywords=[
                     "GRYNASIS PELNAS",
                     "ATASKAITINIŲ METŲ PELNAS",
+                    "PELNAS PRIEŠ APMOKESTINIMĄ",
                     "PELNAS",
                 ],
             )
@@ -466,11 +442,11 @@ def build_rc_verification_records(
             "rc_form_pavadinimas": rc_row["form_pavadinimas"] if rc_row else None,
             "rc_stat_pavadinimas": rc_row["stat_pavadinimas"] if rc_row else None,
             "rc_latest_revenue": rc_latest_revenue,
-            "rc_latest_profit": rc_latest_profit,
+            "rc_latest_profit": rc_latest_profit_signal,
             "checked_at": checked_at,
         })
 
-        logger.info(
+        logger.debug(
             (
                 "RC check business=%s | legal_name=%s | company_code=%s | "
                 "status=%s | method=%s | rc_name=%s"
@@ -527,7 +503,7 @@ def print_final_results(connection) -> None:
             (
                 "Name=%s | Category=%s | Reviews=%s | Activity=%s/%s | "
                 "Website legal=%s | Code=%s | VAT=%s | "
-                "RC=%s via %s | RC name=%s | Revenue=%s | Profit=%s"
+                "RC=%s via %s | RC name=%s | Revenue=%s | Profit signal=%s"
             ),
             row["business_name"],
             row["category_key"],
@@ -545,6 +521,136 @@ def print_final_results(connection) -> None:
         )
 
 
+def process_category_job(
+    settings,
+    client: Optional[SerpApiClient],
+    connection,
+    job: dict,
+) -> tuple[int, int, int]:
+    category_key = job["category_key"]
+    query = job["query"]
+    display_name = job["display_name"]
+
+    logger.info(
+        "Processing category=%s display_name=%s query=%s",
+        category_key,
+        display_name,
+        query,
+    )
+
+    if settings.dry_run:
+        logger.info("DRY_RUN enabled. Skipping API request for query=%s", query)
+        return 0, 0, 0
+
+    if settings.app_mode == "demo":
+        logger.info(
+            "APP_MODE=demo. Loading sample Google Maps response from %s",
+            settings.sample_google_maps_path,
+        )
+
+        data = load_sample_google_maps_response(
+            sample_path=settings.sample_google_maps_path,
+        )
+
+        businesses = parse_google_maps_businesses(
+            data=data,
+            category_key=category_key,
+            search_query=query,
+        )
+
+        raw_pages = [
+            {
+                "page_number": 1,
+                "data": data,
+            }
+        ]
+
+    else:
+        if client is None:
+            raise ValueError("SerpApi client is required in live mode")
+
+        businesses, raw_pages = scrape_google_maps_paginated(
+            client=client,
+            query=query,
+            category_key=category_key,
+            latitude=settings.map_latitude,
+            longitude=settings.map_longitude,
+            zoom=settings.map_zoom,
+            language=settings.map_language,
+            country=settings.map_country,
+            max_pages=settings.serpapi_max_pages,
+        )
+
+    for raw_page in raw_pages:
+        page_number = raw_page["page_number"]
+        data = raw_page["data"]
+
+        raw_file_name = (
+            f"{category_key}_{query.replace(' ', '_')}_"
+            f"{settings.scrape_city.lower()}_page_{page_number}.json"
+        )
+        raw_file_path = f"data/raw_serpapi/{raw_file_name}"
+
+        save_json(
+            data=data,
+            file_path=raw_file_path,
+        )
+
+    businesses = deduplicate_businesses_by_place_id(businesses)
+
+    scraped_at = datetime.now(timezone.utc).isoformat()
+
+    for business in businesses:
+        business["scraped_at"] = scraped_at
+
+    insert_google_maps_businesses(
+        connection=connection,
+        businesses=businesses,
+    )
+
+    calculated_at = datetime.now(timezone.utc).isoformat()
+
+    score_records = build_activity_score_records(
+        businesses=businesses,
+        calculated_at=calculated_at,
+    )
+
+    insert_google_activity_scores(
+        connection=connection,
+        score_records=score_records,
+    )
+
+    if settings.app_mode == "demo":
+        logger.info("APP_MODE=demo. Skipping website legal extraction.")
+        legal_candidates = []
+    else:
+        max_websites = get_effective_max_websites(settings.max_websites_to_check)
+
+        legal_candidates = build_legal_entity_candidates(
+            businesses=businesses,
+            scraped_at=scraped_at,
+            max_websites=max_websites,
+        )
+
+    insert_legal_entity_candidates(
+        connection=connection,
+        candidates=legal_candidates,
+    )
+
+    logger.info(
+        (
+            "Saved category=%s | businesses=%s | activity_scores=%s | "
+            "legal_candidates=%s"
+        ),
+        category_key,
+        len(businesses),
+        len(score_records),
+        len(legal_candidates),
+    )
+
+    return len(businesses), len(score_records), len(legal_candidates)
+
+
 def main() -> None:
     settings = get_settings()
     setup_logging(settings.log_level)
@@ -557,6 +663,7 @@ def main() -> None:
     logger.info("Max categories: %s", settings.max_categories)
     logger.info("Database path: %s", settings.database_path)
     logger.info("SerpApi max pages: %s", settings.serpapi_max_pages)
+    logger.info("Max websites to check: %s", settings.max_websites_to_check)
 
     if settings.app_mode != "demo" and settings.provider != "serpapi":
         raise NotImplementedError(
@@ -566,7 +673,7 @@ def main() -> None:
     if settings.app_mode != "demo" and not settings.serpapi_api_key:
         raise ValueError("SERPAPI_API_KEY is missing")
 
-    client = None
+    client: Optional[SerpApiClient] = None
 
     if settings.app_mode != "demo":
         client = SerpApiClient(
@@ -574,162 +681,59 @@ def main() -> None:
         )
 
     connection = get_connection(settings.database_path)
-    create_tables(connection)
 
-    jobs = get_selected_category_jobs(
-        city=settings.scrape_city,
-        selected_categories=settings.scrape_categories,
-        max_categories=settings.max_categories,
-    )
+    try:
+        create_tables(connection)
 
-    logger.info("Total category jobs: %s", len(jobs))
-
-    total_businesses_saved = 0
-    total_scores_saved = 0
-    total_legal_candidates_saved = 0
-
-    for job in jobs:
-        category_key = job["category_key"]
-        query = job["query"]
-        display_name = job["display_name"]
-
-        logger.info(
-            "Processing category=%s display_name=%s query=%s",
-            category_key,
-            display_name,
-            query,
+        jobs = get_selected_category_jobs(
+            city=settings.scrape_city,
+            selected_categories=settings.scrape_categories,
+            max_categories=settings.max_categories,
         )
 
-        if settings.dry_run:
-            logger.info("DRY_RUN enabled. Skipping API request for query=%s", query)
-            continue
+        logger.info("Total category jobs: %s", len(jobs))
 
-        if settings.app_mode == "demo":
-            logger.info(
-                "APP_MODE=demo. Loading sample Google Maps response from %s",
-                settings.sample_google_maps_path,
-            )
+        total_businesses_saved = 0
+        total_scores_saved = 0
+        total_legal_candidates_saved = 0
 
-            data = load_sample_google_maps_response(
-                sample_path=settings.sample_google_maps_path,
-            )
+        for job in jobs:
+            try:
+                businesses_saved, scores_saved, legal_candidates_saved = process_category_job(
+                    settings=settings,
+                    client=client,
+                    connection=connection,
+                    job=job,
+                )
 
-            businesses = parse_google_maps_businesses(
-                data=data,
-                category_key=category_key,
-                search_query=query,
-            )
+                total_businesses_saved += businesses_saved
+                total_scores_saved += scores_saved
+                total_legal_candidates_saved += legal_candidates_saved
 
-            raw_pages = [
-                {
-                    "page_number": 1,
-                    "data": data,
-                }
-            ]
+            except Exception:
+                logger.exception("Failed to process category job=%s", job)
+                continue
 
-        else:
-            businesses, raw_pages = scrape_google_maps_paginated(
-                client=client,
-                query=query,
-                category_key=category_key,
-                latitude=settings.map_latitude,
-                longitude=settings.map_longitude,
-                zoom=settings.map_zoom,
-                language=settings.map_language,
-                country=settings.map_country,
-                max_pages=settings.serpapi_max_pages,
-            )
+            time.sleep(settings.request_delay_seconds)
 
-        for raw_page in raw_pages:
-            page_number = raw_page["page_number"]
-            data = raw_page["data"]
+        checked_at = datetime.now(timezone.utc).isoformat()
 
-            raw_file_name = (
-                f"{category_key}_{query.replace(' ', '_')}_"
-                f"{settings.scrape_city.lower()}_page_{page_number}.json"
-            )
-            raw_file_path = f"data/raw_serpapi/{raw_file_name}"
-
-            save_json(
-                data=data,
-                file_path=raw_file_path,
-            )
-
-        businesses = deduplicate_businesses_by_place_id(businesses)
-
-        scraped_at = datetime.now(timezone.utc).isoformat()
-
-        for business in businesses:
-            business["scraped_at"] = scraped_at
-
-        insert_google_maps_businesses(
+        rc_verification_records = build_rc_verification_records(
             connection=connection,
-            businesses=businesses,
+            checked_at=checked_at,
         )
 
-        total_businesses_saved += len(businesses)
-
-        calculated_at = datetime.now(timezone.utc).isoformat()
-
-        score_records = build_activity_score_records(
-            businesses=businesses,
-            calculated_at=calculated_at,
-        )
-
-        insert_google_activity_scores(
+        insert_rc_verifications(
             connection=connection,
-            score_records=score_records,
+            records=rc_verification_records,
         )
 
-        total_scores_saved += len(score_records)
+        logger.info("Saved %s RC verification records", len(rc_verification_records))
 
-        if settings.app_mode == "demo":
-            logger.info("APP_MODE=demo. Skipping website legal extraction.")
-            legal_candidates = []
-        else:
-            legal_candidates = build_legal_entity_candidates(
-                businesses=businesses,
-                scraped_at=scraped_at,
-                max_websites=None,
-            )
+        print_final_results(connection)
 
-        insert_legal_entity_candidates(
-            connection=connection,
-            candidates=legal_candidates,
-        )
-
-        total_legal_candidates_saved += len(legal_candidates)
-
-        logger.info(
-            (
-                "Saved category=%s | businesses=%s | activity_scores=%s | "
-                "legal_candidates=%s"
-            ),
-            category_key,
-            len(businesses),
-            len(score_records),
-            len(legal_candidates),
-        )
-
-        time.sleep(settings.request_delay_seconds)
-
-    checked_at = datetime.now(timezone.utc).isoformat()
-
-    rc_verification_records = build_rc_verification_records(
-        connection=connection,
-        checked_at=checked_at,
-    )
-
-    insert_rc_verifications(
-        connection=connection,
-        records=rc_verification_records,
-    )
-
-    logger.info("Saved %s RC verification records", len(rc_verification_records))
-
-    print_final_results(connection)
-
-    connection.close()
+    finally:
+        connection.close()
 
     logger.info("Finished scraper")
     logger.info("Total businesses saved: %s", total_businesses_saved)

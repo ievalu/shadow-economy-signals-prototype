@@ -13,6 +13,10 @@ load_dotenv(dotenv_path=env_path)
 
 @dataclass
 class Settings:
+    # App mode
+    app_mode: str
+
+    # Provider
     provider: str
 
     # SerpApi
@@ -26,6 +30,7 @@ class Settings:
     scrape_city: str
     scrape_categories: list[str]
     max_categories: int
+    max_websites_to_check: int
 
     # Google Maps location config
     map_latitude: float
@@ -38,8 +43,13 @@ class Settings:
     log_level: str
     request_delay_seconds: int
     dry_run: bool
-    app_mode: str
+
+    # Demo/sample data
     sample_google_maps_path: str
+
+    # External files / reports
+    rc_csv_path: str
+    report_output_path: str
 
 
 def parse_csv_env(value: str) -> list[str]:
@@ -57,33 +67,114 @@ def parse_bool_env(value: str | None, default: bool = False) -> bool:
     return value.strip().lower() in ["true", "1", "yes", "y"]
 
 
+def parse_int_env(value: str | None, default: int) -> int:
+    if value is None or value.strip() == "":
+        return default
+
+    try:
+        return int(value)
+    except ValueError as error:
+        raise ValueError(f"Invalid integer environment value: {value}") from error
+
+
+def parse_float_env(value: str | None, default: float) -> float:
+    if value is None or value.strip() == "":
+        return default
+
+    try:
+        return float(value)
+    except ValueError as error:
+        raise ValueError(f"Invalid float environment value: {value}") from error
+
+
+def normalize_choice(
+    value: str,
+    allowed_values: set[str],
+    field_name: str,
+) -> str:
+    normalized_value = value.strip().lower()
+
+    if normalized_value not in allowed_values:
+        raise ValueError(
+            f"Invalid {field_name}: {value}. "
+            f"Allowed values: {sorted(allowed_values)}"
+        )
+
+    return normalized_value
+
+
 def get_settings() -> Settings:
     scrape_categories_raw = os.getenv("SCRAPE_CATEGORIES", "food,beauty,cars")
 
+    app_mode = normalize_choice(
+        value=os.getenv("APP_MODE", "live"),
+        allowed_values={"live", "demo"},
+        field_name="APP_MODE",
+    )
+
+    provider = normalize_choice(
+        value=os.getenv("PROVIDER", "serpapi"),
+        allowed_values={"serpapi"},
+        field_name="PROVIDER",
+    )
+
     return Settings(
-        provider=os.getenv("PROVIDER", "serpapi"),
+        app_mode=app_mode,
+
+        provider=provider,
 
         serpapi_api_key=os.getenv("SERPAPI_API_KEY", ""),
-        serpapi_max_pages=int(os.getenv("SERPAPI_MAX_PAGES", "1")),
+        serpapi_max_pages=parse_int_env(
+            os.getenv("SERPAPI_MAX_PAGES"),
+            default=1,
+        ),
 
         database_path=os.getenv("DATABASE_PATH", "data/shadow_economy.sqlite"),
 
         scrape_city=os.getenv("SCRAPE_CITY", "Vilnius"),
         scrape_categories=parse_csv_env(scrape_categories_raw),
-        max_categories=int(os.getenv("MAX_CATEGORIES", "3")),
+        max_categories=parse_int_env(
+            os.getenv("MAX_CATEGORIES"),
+            default=3,
+        ),
+        max_websites_to_check=parse_int_env(
+            os.getenv("MAX_WEBSITES_TO_CHECK"),
+            default=30,
+        ),
 
-        map_latitude=float(os.getenv("MAP_LATITUDE", "54.6872")),
-        map_longitude=float(os.getenv("MAP_LONGITUDE", "25.2797")),
-        map_zoom=int(os.getenv("MAP_ZOOM", "14")),
+        map_latitude=parse_float_env(
+            os.getenv("MAP_LATITUDE"),
+            default=54.6872,
+        ),
+        map_longitude=parse_float_env(
+            os.getenv("MAP_LONGITUDE"),
+            default=25.2797,
+        ),
+        map_zoom=parse_int_env(
+            os.getenv("MAP_ZOOM"),
+            default=14,
+        ),
         map_language=os.getenv("MAP_LANGUAGE", "lt"),
         map_country=os.getenv("MAP_COUNTRY", "lt"),
 
-        log_level=os.getenv("LOG_LEVEL", "INFO"),
-        request_delay_seconds=int(os.getenv("REQUEST_DELAY_SECONDS", "2")),
+        log_level=os.getenv("LOG_LEVEL", "INFO").upper(),
+        request_delay_seconds=parse_int_env(
+            os.getenv("REQUEST_DELAY_SECONDS"),
+            default=2,
+        ),
         dry_run=parse_bool_env(os.getenv("DRY_RUN"), default=False),
-        app_mode=os.getenv("APP_MODE", "live"),
+
         sample_google_maps_path=os.getenv(
             "SAMPLE_GOOGLE_MAPS_PATH",
             "data/sample/sample_google_maps_response.json",
-        )
+        ),
+
+        rc_csv_path=os.getenv(
+            "RC_CSV_PATH",
+            "data/raw_external/rc_financials.csv",
+        ),
+        report_output_path=os.getenv(
+            "REPORT_OUTPUT_PATH",
+            "data/reports/final_report.csv",
+        ),
     )

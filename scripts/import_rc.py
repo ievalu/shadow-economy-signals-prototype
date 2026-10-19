@@ -12,24 +12,10 @@ from app.database import (
     get_connection,
     insert_rc_records,
 )
+from app.text_utils import fix_mojibake
 
 
 load_dotenv()
-
-
-def fix_mojibake(value: str) -> str:
-    if not value:
-        return value
-
-    mojibake_markers = ["Å", "Ä", "Æ", "Ð", "Ø", "Ã"]
-
-    if not any(marker in value for marker in mojibake_markers):
-        return value
-
-    try:
-        return value.encode("latin1").decode("utf-8")
-    except UnicodeError:
-        return value
 
 
 def clean_text(value: str | None) -> str | None:

@@ -8,6 +8,7 @@ class SerpApiClient:
 
         self.api_key = api_key
         self.base_url = "https://serpapi.com/search.json"
+        self.session = requests.Session()
 
     def search_google_maps(
         self,
@@ -27,32 +28,46 @@ class SerpApiClient:
             "api_key": self.api_key,
         }
 
-        return self._get(params)
+        return self._get(
+            url=self.base_url,
+            params=params,
+        )
 
     def get_next_page(
         self,
         next_url: str,
     ) -> dict:
-        response = requests.get(
-            next_url,
+        return self._get(
+            url=next_url,
             params={
                 "api_key": self.api_key,
             },
-            timeout=60,
         )
 
-        response.raise_for_status()
-        return response.json()
-
-    def _get(self, params: dict) -> dict:
-        response = requests.get(
-            self.base_url,
+    def _get(
+        self,
+        url: str,
+        params: dict | None = None,
+    ) -> dict:
+        response = self.session.get(
+            url,
             params=params,
             timeout=60,
         )
 
-        response.raise_for_status()
-        return response.json()
+        if not response.ok:
+            raise requests.HTTPError(
+                f"SerpApi request failed. "
+                f"status_code={response.status_code}, "
+                f"response={response.text}"
+            )
+
+        data = response.json()
+
+        if "error" in data:
+            raise RuntimeError(f"SerpApi returned error: {data['error']}")
+
+        return data
 
 
 def parse_google_maps_businesses(

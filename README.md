@@ -143,6 +143,8 @@ Set this in .env:
 APP_MODE=demo
 SAMPLE_GOOGLE_MAPS_PATH=data/sample/sample_google_maps_response.json
 RC_CSV_PATH=data/sample/sample_rc_financials.csv
+SCRAPE_CATEGORIES=food
+MAX_CATEGORIES=1
 ```
 In demo mode, SERPAPI_API_KEY is not required.
 
