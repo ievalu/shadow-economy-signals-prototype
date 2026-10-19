@@ -3,10 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: shadow-economy
     env_file:
       - .env
     volumes:
       - ./data:/app/data
-      - ./logs:/app/logs
-    restart: "no"
+    command: python -m scripts.run_pipeline

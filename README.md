@@ -31,6 +31,28 @@ The scraper checks pages such as:
 
 /terms
 
+## Registrų centras CSV input
+
+The pipeline expects a Registrų centras financial/legal CSV file.
+
+The full RC CSV is not committed to the repository because it can be large and should be downloaded separately from the official source.
+
+Place the file here:
+
+`data/raw_external/rc_financials.csv`
+
+Then make sure .env contains:
+
+`RC_CSV_PATH=data/raw_external/rc_financials.csv`
+
+The importer is run as part of the full pipeline:
+
+`python -m scripts.run_pipeline`
+
+Or separately:
+
+`python -m scripts.import_rc`
+
 ## Local run
 ### Install dependencies:
 
@@ -69,13 +91,23 @@ data/reports/final_report.csv
 
 `docker compose run --rm business_monitor python -m scripts.export_report`
 
+## One-command pipeline run
+
+### Local:
+
+`py -m scripts.run_pipeline`
+
+### Docker:
+
+`docker compose up --build`
+
 ## Main database tables
-google_maps_businesses
-google_activity_scores
-legal_entity_candidates
-rc_entities
-rc_financial_records
-rc_verifications
+- google_maps_businesses
+- google_activity_scores
+- legal_entity_candidates
+- rc_entities
+- rc_financial_records
+- rc_verifications
 
 ## Report columns
 ### The exported CSV includes:
