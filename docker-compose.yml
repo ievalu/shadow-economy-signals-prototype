@@ -1,0 +1,12 @@
+services:
+  business_monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: shadow-economy
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    restart: "no"

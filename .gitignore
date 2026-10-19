@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+
+data/*.sqlite
+data/*.sqlite-*
+data/raw_serpapi/
+data/raw_external/
+data/reports/
+
+.DS_Store
+.vscode/

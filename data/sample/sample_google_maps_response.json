@@ -1,0 +1,92 @@
+{
+  "search_metadata": {
+    "id": "6a276f1c1748c01a3d0994a2",
+    "status": "Success",
+    "json_endpoint": "https://serpapi.com/searches/0tuvoPD9rK17yioA1U6exA/6a276f1c1748c01a3d0994a2.json",
+    "created_at": "2026-06-09 01:40:44 UTC",
+    "processed_at": "2026-06-09 01:40:44 UTC",
+    "google_maps_url": "https://www.google.com/maps/search/Coffee/@40.7455096,-74.0083012,14z/?hl=en",
+    "raw_html_file": "https://serpapi.com/searches/0tuvoPD9rK17yioA1U6exA/6a276f1c1748c01a3d0994a2.html",
+    "prettify_html_file": "https://serpapi.com/searches/0tuvoPD9rK17yioA1U6exA/6a276f1c1748c01a3d0994a2.prettify",
+    "total_time_taken": 0.84
+  },
+  "search_parameters": {
+    "engine": "google_maps",
+    "type": "search",
+    "q": "Coffee",
+    "ll": "@40.7455096,-74.0083012,14z",
+    "google_domain": "google.com",
+    "hl": "en"
+  },
+  "search_information": {
+    "local_results_state": "Results for exact spelling",
+    "query_displayed": "Coffee"
+  },
+  "local_results": [
+    {
+      "position": 1,
+      "title": "Shambhu Coffee & Gelato",
+      "place_id": "ChIJC8vfEbJRwokRxWSkJ-0WeAo",
+      "data_id": "0x89c251b211dfcb0b:0xa7816ed27a464c5",
+      "data_cid": "754378145412703429",
+      "reviews_link": "https://serpapi.com/search.json?data_id=0x89c251b211dfcb0b%3A0xa7816ed27a464c5&engine=google_maps_reviews&hl=en",
+      "photos_link": "https://serpapi.com/search.json?data_id=0x89c251b211dfcb0b%3A0xa7816ed27a464c5&engine=google_maps_photos&hl=en",
+      "gps_coordinates": {
+        "latitude": 40.716051,
+        "longitude": -74.0647086
+      },
+      "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&place_id=ChIJC8vfEbJRwokRxWSkJ-0WeAo",
+      "provider_id": "/g/11njwsrj39",
+      "rating": 5,
+      "reviews": 26,
+      "price": "$1–10",
+      "extracted_price": 1,
+      "type": "Coffee shop",
+      "types": [
+        "Coffee shop"
+      ],
+      "type_id": "coffee_shop",
+      "type_ids": [
+        "coffee_shop"
+      ],
+      "address": "667 Grand St Unit B, Jersey City, NJ 07304",
+      "country": "United States",
+      "open_state": "Closes soon · 10 PM · Opens 6 AM Tue",
+      "hours": "Closes soon · 10 PM · Opens 6 AM Tue",
+      "operating_hours": {
+        "monday": "6 AM–10 PM",
+        "tuesday": "6 AM–10 PM",
+        "wednesday": "6 AM–10 PM",
+        "thursday": "6 AM–10 PM",
+        "friday": "6 AM–10 PM",
+        "saturday": "7 AM–10 PM",
+        "sunday": "7 AM–10 PM"
+      },
+      "phone": "(201) 238-0037",
+      "extensions": [
+        {
+          "service_options": [
+            "Curbside pickup",
+            "Takeout",
+            "Dine-in"
+          ]
+        },
+        {
+          "offerings": [
+            "Coffee"
+          ]
+        }
+      ],
+      "service_options": {
+        "dine_in": true,
+        "curbside_pickup": true
+      },
+      "order_online": "https://www.google.com/searchviewer/42?cvd=CLw_EicKJeICIjIgEhkiF9LX29IPEQoNL2cvMTFuandzcmozORgAOgMI8A0%3D&hl=en-US&gl=us&fo_m=MfohQo559jFvMUOzJVpjPL1YMfZ3bInYwBDuMfaXTPp5KXh-&utm_source=tactile&gei=HW8navv-MbSJi-gPhKeoiQI&ei=HW8navv-MbSJi-gPhKeoiQI&fo_s=OA,SOE&opi=79508299&ebb=1&cs=0&foub=mcpp",
+      "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/APNQkAHn5idbvDLM2O7K26DGOohe6QdQjy41PYU_lRiLTsbFwQzD7DkTaoU4qJ-MVIaGi_OCAR7gsUftFrKRV25aTiKV4raE5WaOMUIIUpZ1br3s9wCqWFxvsNeHi2VC1yVtdWzVrGtwfcAbpkXD=w1000-h1000-c-n",
+      "serpapi_thumbnail": "https://serpapi.com/images/url/kaU7KnicHcTNboIwAADgJ6r8CJKZeCB0IENECC26iymlQgej2HYyfcmd9zYmfofv_6_TelJrwxi65aIVoh3Yj2KSilGzUS-o-DbaSQGqgDL8wz7v_e3o8qa-wV1qZ15ir2CUiY6t8ib_ujvW4YTOQ8F3parDOX9AD_YlEci5foAUxyTi5yzwC69V6KJDmRTYdknJE-xI8u5WJEtRHKPp06rlUr3NwbUKf29qz7bcxoF1x7qpHlhGer5Qv576I9zMlmmaoHtNwfgET8FHSw"
+    }
+  ],
+  "serpapi_pagination": {
+    "next": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=en&ll=%4040.7455096%2C-74.0083012%2C14z&q=Coffee&start=20&type=search"
+  }
+}

@@ -1,0 +1,61 @@
+﻿business_name,category_key,google_rating,google_review_count,open_state,website,google_activity_score,google_activity_level,website_legal_name,website_company_code,website_vat_code,website_confidence,rc_match_status,rc_match_method,rc_ja_kodas,rc_ja_pavadinimas,rc_form_pavadinimas,rc_stat_pavadinimas,rc_latest_revenue,rc_latest_profit,review_flag
+Etno Dvaras,food,4.5,15862,Atidaryta ⋅ Uždaroma 00,http://www.etnodvaras.lt/,25,high,UAB Restoranų grupė FORTAS,,,low,matched,legal_name_normalized_exact,122639457,"Uždaroji akcinė bendrovė ""Restoranų grupė FORTAS""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,14544845.0,1553648.0,lower_priority
+Grey,food,4.5,5132,Atidaryta ⋅ Uždaroma 01,http://www.restoranasgrey.lt/,25,high,UAB Juta Jazz Kava,,,low,matched,legal_name_normalized_exact,301733268,"UAB ""Juta jazz kava""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,4961630.0,-83191.0,lower_priority
+Lokys,food,4.6,4437,Atidaryta ⋅ Uždaroma 00,https://lokys.lt/,25,high,UAB Vilnius REKVIZITAI,121525187,,high,matched,company_code,121525187,"Uždaroji akcinė bendrovė ""Senasis lokys""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,2639808.0,473081.0,lower_priority
+Meat Lovers,food,4.6,4305,Atidaryta ⋅ Uždaroma 00,https://meat-lovers-vilnius.tablein.com/lt,25,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+Etno Dvaras,food,4.5,3092,Atidaryta ⋅ Uždaroma 00,https://www.etnodvaras.lt/,25,high,UAB Restoranų grupė FORTAS,,,low,matched,legal_name_normalized_exact,122639457,"Uždaroji akcinė bendrovė ""Restoranų grupė FORTAS""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,14544845.0,1553648.0,lower_priority
+Cozy,food,4.5,1814,Atidaryta ⋅ Uždaroma 01,http://www.cozy.lt/,25,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+Trinity,food,4.5,1729,"Atidaryta ⋅ Uždaroma sk, 05",https://www.trinityvilnius.lt/,25,high,UAB Sevilex,302822595,,high,matched,company_code,302822595,"UAB ""Sevilex""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,1300012.0,69706.0,lower_priority
+Brussels Mussels Centrum,food,4.6,1508,Atidaryta ⋅ Uždaroma 01,http://www.brusselsmussels.lt/,25,high,MB Belgas,,,low,matched,legal_name_normalized_exact,304823023,"MB ""Belgas""",Mažoji bendrija,Teisinis stat neįregistruotas,2306155.0,163658.0,lower_priority
+Autvadita - Specializuotas servisas. BMW ir MINI automobilių remontas.,cars,4.8,1911,"Uždaryta ⋅ Atidaroma pr, 09",https://autvadita.lt/index.html,23,high,UAB Autv adita,,,low,matched,legal_name_normalized_partial,120112036,"Uždaroji akcinė bendrovė ""A""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,71363.0,-26496.0,lower_priority
+Ertlio Namas,food,4.7,1787,"Netrukus bus uždaryta 23 ⋅ Atidaroma: pr, 17",http://www.ertlionamas.lt/,23,high,UAB Istorinė virtuvė,,,low,matched,legal_name_normalized_exact,304311457,"UAB ""Istorinė virtuvė""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,1155575.0,183304.0,lower_priority
+Bazilijonai Grill house,food,4.7,1259,"Netrukus bus uždaryta 23:30 ⋅ Atidaroma: sk, 12",https://www.bazilijonai.com/,23,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+Gaspar's,food,4.7,1199,"Netrukus bus uždaryta 23 ⋅ Atidaroma: an, 17",http://www.gaspars.lt/,23,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+DRAUGAI,food,4.5,862,Atidaryta ⋅ Uždaroma 00,http://www.draugai.rest/,19,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+Detective,food,4.8,845,Atidaryta ⋅ Uždaroma 00,https://sites.google.com/view/restaurant-detective/,19,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+El Gato Negro,food,4.7,789,Atidaryta ⋅ Uždaroma 00,https://www.facebook.com/elgatonegrovilnius,19,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+AGRIJOS AUTOSERVISAS,cars,4.3,589,"Uždaryta ⋅ Atidaroma pr, 08",http://www.agrija.lt/,17,high,AB Swedbank,123665558,LT236655515,high,matched,legal_name_normalized_partial,110179684,UŽDAROJI AKCINĖ BENDROVĖ ABB,Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,32950000.0,1150000.0,lower_priority
+River Town,food,4.9,559,"Netrukus bus uždaryta 23 ⋅ Atidaroma: pr, 11:30",https://www.facebook.com/River-Town-100519502292291/?ref=pages_you_manage,17,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+Hold on beauty,beauty,4.9,454,"Uždaryta ⋅ Atidaroma sk, 09",https://hold-on-beauty.easyweek.lt/,17,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+Augustin,food,4.7,450,"Netrukus bus uždaryta 23 ⋅ Atidaroma: pr, 17",https://www.augustin.lt/,17,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+City Wax Vilnius,beauty,4.5,350,"Uždaryta ⋅ Atidaroma sk, 10",http://www.citywaxvilnius.lt/,17,high,UAB reglamentuoja Beribis grožis,,,low,matched,legal_name_normalized_partial,110179684,UŽDAROJI AKCINĖ BENDROVĖ ABB,Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,32950000.0,1150000.0,lower_priority
+Latransa autoservisas,cars,4.7,329,"Uždaryta ⋅ Atidaroma pr, 08",https://latransa.lt/,17,high,UAB servisas Vilniuje,,,low,matched,legal_name_normalized_partial,120112036,"Uždaroji akcinė bendrovė ""A""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,71363.0,-26496.0,lower_priority
+Autoservisas AUTOVELA Vilniuje,cars,4.0,294,"Uždaryta ⋅ Atidaroma pr, 07:30",https://autovela.lt/,17,high,UAB Autovela,304221935,LT100010071017,high,matched,company_code,304221935,"UAB ""Autovela""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,2117062.0,130767.0,lower_priority
+Gloria Restaurant,food,4.8,269,"Netrukus bus uždaryta 23 ⋅ Atidaroma: sk, 11:30",http://gloria.restaurant/,17,high,II pagal išansktinį užsakymą,,,low,matched,legal_name_normalized_partial,120112036,"Uždaroji akcinė bendrovė ""A""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,71363.0,-26496.0,lower_priority
+Edler Autoservisas,cars,4.2,231,"Uždaryta ⋅ Atidaroma pr, 08",http://www.edler.lt/,17,high,UAB EDLER,302843333,LT100007141711,high,matched,company_code,302843333,UAB EDLER,Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,302450.0,13952.0,lower_priority
+UAB KARSERVISAS,cars,4.8,229,"Uždaryta ⋅ Atidaroma pr, 08",https://karservisas.lt/,17,high,UAB Karservisas,305024563,LT100012204710,high,matched,company_code,305024563,"UAB ""Karservisas""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,352036.0,-7136.0,lower_priority
+Universalus Meistras,cars,4.8,209,"Uždaryta ⋅ Atidaroma pr, 08:30",https://www.universalusmeistras.lt/autoservisas-vilniuje/,17,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+Mad Beauty Squad,beauty,4.6,591,"Uždaryta ⋅ Atidaroma pr, 09",,16,high,,,,,,,,,,,,,high_activity_no_rc_match_manual_review
+Bosch Car Service - Autovisatos servisas,cars,3.6,278,"Uždaryta ⋅ Atidaroma pr, 07:30",https://www.autovisata.lt/,15,high,UAB Autovisatos servisas,,,low,matched,legal_name_normalized_exact,225275440,"UAB ""AUTOVISATOS SERVISAS""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,2092995.0,99034.0,lower_priority
+Kvevri Restaurant,food,4.8,87,Atidaryta ⋅ Uždaroma 00,https://www.kvevri.lt/,15,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+Deep Roots,food,4.9,60,Atidaryta ⋅ Uždaroma 00,https://deeproots.lt/,15,high,,,,none,not_found,,,,,,,,high_activity_no_rc_match_manual_review
+Gatineau,beauty,4.6,196,"Uždaryta ⋅ Atidaroma an, 09",http://groziopaslaugos.lt/,13,medium,UAB Irena ir Kiti,,,low,matched,legal_name_normalized_exact,124713810,"Uždaroji akcinė bendrovė ""IRENA IR KITI""",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,124551.0,1522.0,lower_priority
+Salon 414,beauty,4.8,168,"Uždaryta ⋅ Atidaroma sk, 10",http://facebook.com/414salon,13,medium,,,,none,not_found,,,,,,,,medium_activity_no_rc_match_manual_review
+Cult of Beauty,beauty,4.8,157,"Uždaryta ⋅ Atidaroma pr, 10",http://www.kosmetologas.com/,13,medium,MB Cult of Beauty,,,low,matched,legal_name_normalized_exact,305544457,"MB ""Cult of Beauty""",Mažoji bendrija,Teisinis stat neįregistruotas,41474.0,-11309.0,lower_priority
+Kukla Beauty Box,beauty,4.8,157,"Uždaryta ⋅ Atidaroma pr, 10",http://www.kukla.lt/,13,medium,,,,none,not_found,,,,,,,,medium_activity_no_rc_match_manual_review
+Scandal Beauty Parlor,beauty,4.8,156,"Uždaryta ⋅ Atidaroma pr, 10",http://www.scandal.lt/,13,medium,,,,none,not_found,,,,,,,,medium_activity_no_rc_match_manual_review
+Užupio servisas,cars,4.7,136,"Uždaryta ⋅ Atidaroma pr, 08",http://www.uzupioservisas.lt/,13,medium,,,,none,not_found,,,,,,,,medium_activity_no_rc_match_manual_review
+Myworkshop,cars,4.2,119,"Uždaryta ⋅ Atidaroma pr, 09",http://myworkshop.lt/,13,medium,,,,none,not_found,,,,,,,,medium_activity_no_rc_match_manual_review
+CHIC Beauty House,beauty,4.8,116,"Uždaryta ⋅ Atidaroma pr, 10",http://www.chicbeautyhouse.lt/,13,medium,UAB Beauty House,,,low,matched,legal_name_normalized_exact,305561296,"MB ""BeAuty House""",Mažoji bendrija,Teisinis stat neįregistruotas,44981.0,2318.0,lower_priority
+Beauty Peak,beauty,4.8,99,"Uždaryta ⋅ Atidaroma pr, 10",https://book.treatwell.lt/salonas/325671/meniu/,13,medium,,,,none,not_found,,,,,,,,lower_priority
+KR AUTOSERVISAS,cars,4.7,84,"Uždaryta ⋅ Atidaroma pr, 09",https://kr1autoservisas.wixsite.com/krautoservisas,13,medium,,,,none,not_found,,,,,,,,lower_priority
+Gastrolės Downtown,food,4.8,83,"Uždaryta ⋅ Atidaroma sk, 10",https://www.gastroles.lt/,13,medium,MB Gastromanai,305651861,LT100013900112,high,matched,company_code,305651861,"MB ""Gastromanai""",Mažoji bendrija,Teisinis stat neįregistruotas,2059645.0,6200.0,lower_priority
+Biodroga SPA Grožio salonas,beauty,4.6,67,"Uždaryta ⋅ Atidaroma pr, 10",http://www.biodrogaspa.lt/,13,medium,,,,none,not_found,,,,,,,,lower_priority
+Ameya,beauty,4.9,63,"Uždaryta ⋅ Atidaroma pr, 09",http://www.ameyabeauty.lt/,13,medium,,,,none,not_found,,,,,,,,lower_priority
+Visible Beauty,beauty,4.8,61,"Uždaryta ⋅ Atidaroma sk, 10",http://www.visiblebeauty.lt/,13,medium,,,,none,not_found,,,,,,,,lower_priority
+Autorepair.lt,cars,5.0,56,"Uždaryta ⋅ Atidaroma pr, 09",https://www.autorepair.lt/,13,medium,,,,none,not_found,,,,,,,,lower_priority
+Anyfix,cars,4.5,52,"Uždaryta ⋅ Atidaroma pr, 09",https://anyfix-autoservisas.blogspot.com/,13,medium,,,,none,not_found,,,,,,,,lower_priority
+Rex Servisas,cars,4.7,55,"Uždaryta ⋅ Atidaroma pr, 09",,12,medium,,,,,,,,,,,,,lower_priority
+Autoklinika,cars,4.6,53,"Uždaryta ⋅ Atidaroma pr, 09",,12,medium,,,,,,,,,,,,,lower_priority
+M beauty house,beauty,5.0,91,"Uždaryta ⋅ Atidaroma sk, 10",,11,medium,,,,,,,,,,,,,lower_priority
+Autodirbtuves Avus,cars,4.9,49,"Uždaryta ⋅ Atidaroma pr, 09",https://www.facebook.com/www.avus.lt/,10,medium,,,,none,not_found,,,,,,,,lower_priority
+Beauty Kitchen Studio,beauty,5.0,47,"Uždaryta ⋅ Atidaroma sk, 09",https://www.treatwell.lt/salonas/beauty-kitchen-studio/,10,medium,UAB Treatwell LT,,,low,matched,legal_name_normalized_exact,302608933,Treatwell LT UAB,Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,3454751.0,-162451.0,lower_priority
+DKautoservisas,cars,4.7,46,"Uždaryta ⋅ Atidaroma sk, 09",https://dkautoservisas.lt/,10,medium,,,,none,not_found,,,,,,,,lower_priority
+Beauty studio,beauty,4.9,35,"Uždaryta ⋅ Atidaroma pr, 09",https://www.instagram.com/ksenya.nailsss?igsh=MXV4cnYyNXF2M2p1NA%3D%3D&utm_source=qr,10,medium,,,,none,not_found,,,,,,,,lower_priority
+Amiri studio,beauty,4.7,35,Dirba 24 val.,https://www.amiri.lt/,10,medium,,,,none,not_found,,,,,,,,lower_priority
+Beauty Gates,beauty,4.9,32,"Uždaryta ⋅ Atidaroma pr, 10",https://beautygates.lt/,10,medium,,,,none,not_found,,,,,,,,lower_priority
+Remarauto servisas,cars,3.9,38,"Uždaryta ⋅ Atidaroma pr, 08",http://remarauto.lt/,8,medium,UAB Šv. Stepono g. 39,302677210,LT100006470113,high,matched,company_code,302677210,"ReMarAuto, UAB",Uždaroji akcinė bendrovė,Teisinis stat neįregistruotas,134138.0,-10967.0,lower_priority
+Mėlyna Beauty Station,beauty,4.9,42,,http://www.melynabeautystation.lt/,7,low,,,,none,not_found,,,,,,,,lower_priority
+"""Arinelle"" Beauty Studio",beauty,5.0,28,,https://www.instagram.com/arinelle_beautystudio?igsh=M2p0Z2I0NGJwdXc=,6,low,,,,none,not_found,,,,,,,,lower_priority
+VarSofAuto,cars,4.1,9,"Uždaryta ⋅ Atidaroma pr, 09",https://varsofauto.com/,6,low,,,,none,not_found,,,,,,,,lower_priority
+Fix Auto LT,cars,2.5,6,,,2,low,,,,,,,,,,,,,lower_priority
