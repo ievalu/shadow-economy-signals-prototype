@@ -134,20 +134,33 @@ Each pipeline run gets a `run_id`, for example:
 This allows analysts to compare Google review counts, ratings, and listing metadata across monthly runs.
 
 ## Report columns
-### The exported CSV includes:
+
+The exported CSV includes:
 
 | Column | Meaning |
 |---|---|
 | business_name | Google Maps business name |
-| category_key | food, beauty, cars |
+| category_key | Search category, e.g. food, beauty, cars |
 | google_rating | Google Maps rating |
 | google_review_count | Google Maps review count |
+| open_state | Open/closed state at scrape time |
+| website | Website from Google Maps |
+| google_maps_url | Google Maps listing URL |
+| google_place_id | Google Maps identifier for traceability and deduplication |
 | google_activity_score | Calculated online activity score |
 | google_activity_level | low / medium / high |
+| google_activity_reasons_json | Reasons behind the activity score |
 | website_legal_name | Legal name extracted from website |
 | website_company_code | Company code extracted from website |
+| website_vat_code | VAT code extracted from website |
+| website_confidence | Confidence of website legal extraction |
+| evidence_url | Website page where legal evidence was found |
 | rc_match_status | Whether RC match was found |
-| rc_match_method | Matching method |
+| rc_match_method | Method used to match to RC |
+| rc_ja_kodas | Matched RC entity code |
+| rc_ja_pavadinimas | Matched RC entity name |
+| rc_form_pavadinimas | RC legal form |
+| rc_stat_pavadinimas | RC legal status |
 | rc_latest_revenue | Latest revenue signal from RC |
 | rc_latest_profit | Latest profit signal from RC |
 | review_flag | Manual-review classification |
@@ -225,3 +238,4 @@ Useful SQLs are provided under /queries folder.
 - Add licensed business-directory enrichment, e.g. Rekvizitai.lt, if data access is available.
 - Track Google review-count changes over time.
 - Add a dashboard for manual review and filtering.
+- Add automatic official-data refresh: download the latest Registrų centras CSV from the public data endpoint, validate row counts/schema, and import it before each run.

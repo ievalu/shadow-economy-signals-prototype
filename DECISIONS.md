@@ -52,6 +52,7 @@ high online activity + weak/missing RC match or weak revenue signal.
 - Low revenue signals do not prove wrongdoing.
 - Individual activity cases may not match company registers.
 - Results are leads, not accusations.
+- The current prototype expects the Registrų centras CSV to be provided as a local file. I intentionally kept this file-based because the exercise scope is limited and large official files can make demo runs slower. A production version should download the latest RC CSV from the official public endpoint, validate schema and row counts, then import it automatically.
 
 ## Monthly runs
 
