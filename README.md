@@ -109,8 +109,45 @@ rc_verifications
 
 These flags mean the business should be reviewed manually.
 
+## Sample Data and Demo Run
+
+The project includes a small sample dataset so the pipeline can be reviewed without using live API calls or large official files.
+
+Sample files are stored in:
+
+```text
+data/sample/
+```
+
+Included sample files:
+
+| File | Purpose |
+|---|---|
+| `sample_google_maps_response.json` | Small SerpApi-like Google Maps response used for demo mode |
+| `sample_rc_financials.csv` | Small Registrų centras-like financial dataset for testing the importer |
+| `sample_final_report.csv` | Example of the final exported report |
+
+The sample data is intentionally small and is only meant to demonstrate the application flow.
+
+## Demo Mode
+Demo mode runs the pipeline using the sample Google Maps response instead of calling SerpApi.
+
+This is useful when:
+
+- no SerpApi API key is available.
+- Test the app quickly.
+- Review the database/report structure.
+
+Set this in .env:
+```
+APP_MODE=demo
+SAMPLE_GOOGLE_MAPS_PATH=data/sample/sample_google_maps_response.json
+RC_CSV_PATH=data/sample/sample_rc_financials.csv
+```
+In demo mode, SERPAPI_API_KEY is not required.
+
 ## Useful SQL
-Useful SQLs provided under /queries folder.
+Useful SQLs are provided under /queries folder.
 
 ## Limitations
 - Google Maps data can be incomplete or outdated.
@@ -122,6 +159,9 @@ Useful SQLs provided under /queries folder.
 - Some businesses may operate legally under individual activity.
 
 ## Future improvements
+
 - Add VMVT matching for food businesses.
-- Add Sodra employee count data.
-- Track review-count changes over time.
+- Add Sodra employee count and salary indicators.
+- Add licensed business-directory enrichment, e.g. Rekvizitai.lt, if data access is available.
+- Track Google review-count changes over time.
+- Add a dashboard for manual review and filtering.
