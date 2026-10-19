@@ -15,6 +15,17 @@ def get_connection(database_path: str) -> sqlite3.Connection:
 
 def create_tables(connection: sqlite3.Connection) -> None:
     connection.execute("""
+        CREATE TABLE IF NOT EXISTS pipeline_runs (
+            run_id TEXT PRIMARY KEY,
+            started_at TEXT NOT NULL,
+            run_label TEXT,
+            app_mode TEXT,
+            scrape_city TEXT,
+            scrape_categories_json TEXT
+        )
+    """)
+
+    connection.execute("""
         CREATE TABLE IF NOT EXISTS google_maps_businesses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             business_name TEXT NOT NULL,
@@ -30,6 +41,31 @@ def create_tables(connection: sqlite3.Connection) -> None:
             hours TEXT,
             operating_hours_json TEXT,
             google_place_id TEXT UNIQUE,
+            google_data_id TEXT,
+            google_maps_url TEXT,
+            latitude REAL,
+            longitude REAL,
+            scraped_at TEXT NOT NULL
+        )
+    """)
+
+    connection.execute("""
+        CREATE TABLE IF NOT EXISTS google_maps_business_snapshots (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            run_id TEXT NOT NULL,
+            google_place_id TEXT,
+            business_name TEXT NOT NULL,
+            category_key TEXT,
+            search_query TEXT,
+            google_rating REAL,
+            google_review_count INTEGER,
+            address TEXT,
+            phone TEXT,
+            website TEXT,
+            business_type TEXT,
+            open_state TEXT,
+            hours TEXT,
+            operating_hours_json TEXT,
             google_data_id TEXT,
             google_maps_url TEXT,
             latitude REAL,
@@ -148,6 +184,21 @@ def create_tables(connection: sqlite3.Connection) -> None:
     """)
 
     connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_google_maps_snapshots_run_id
+        ON google_maps_business_snapshots(run_id)
+    """)
+
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_google_maps_snapshots_place_id
+        ON google_maps_business_snapshots(google_place_id)
+    """)
+
+    connection.execute("""
+        CREATE INDEX IF NOT EXISTS idx_google_maps_snapshots_category
+        ON google_maps_business_snapshots(category_key)
+    """)
+
+    connection.execute("""
         CREATE INDEX IF NOT EXISTS idx_legal_entity_candidates_place_id
         ON legal_entity_candidates(google_place_id)
     """)
@@ -185,6 +236,38 @@ def serialize_json(value) -> str | None:
         return None
 
     return json.dumps(value, ensure_ascii=False, default=str)
+
+
+def insert_pipeline_run(
+    connection: sqlite3.Connection,
+    run_record: dict,
+) -> None:
+    connection.execute("""
+        INSERT INTO pipeline_runs (
+            run_id,
+            started_at,
+            run_label,
+            app_mode,
+            scrape_city,
+            scrape_categories_json
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(run_id) DO UPDATE SET
+            started_at = excluded.started_at,
+            run_label = excluded.run_label,
+            app_mode = excluded.app_mode,
+            scrape_city = excluded.scrape_city,
+            scrape_categories_json = excluded.scrape_categories_json
+    """, (
+        run_record.get("run_id"),
+        run_record.get("started_at"),
+        run_record.get("run_label"),
+        run_record.get("app_mode"),
+        run_record.get("scrape_city"),
+        serialize_json(run_record.get("scrape_categories")),
+    ))
+
+    connection.commit()
 
 
 def insert_google_maps_business(
@@ -265,6 +348,82 @@ def insert_google_maps_businesses(
     try:
         for business in businesses:
             insert_google_maps_business(connection, business)
+
+        connection.commit()
+
+    except Exception:
+        connection.rollback()
+        raise
+
+
+def insert_google_maps_business_snapshot(
+    connection: sqlite3.Connection,
+    run_id: str,
+    business: dict,
+) -> None:
+    gps_coordinates = business.get("gps_coordinates") or {}
+
+    latitude = gps_coordinates.get("latitude")
+    longitude = gps_coordinates.get("longitude")
+
+    connection.execute("""
+        INSERT INTO google_maps_business_snapshots (
+            run_id,
+            google_place_id,
+            business_name,
+            category_key,
+            search_query,
+            google_rating,
+            google_review_count,
+            address,
+            phone,
+            website,
+            business_type,
+            open_state,
+            hours,
+            operating_hours_json,
+            google_data_id,
+            google_maps_url,
+            latitude,
+            longitude,
+            scraped_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        run_id,
+        business.get("google_place_id"),
+        business.get("business_name"),
+        business.get("category_key"),
+        business.get("search_query"),
+        business.get("google_rating"),
+        business.get("google_review_count"),
+        business.get("address"),
+        business.get("phone"),
+        business.get("website"),
+        business.get("business_type"),
+        business.get("open_state"),
+        business.get("hours"),
+        serialize_json(business.get("operating_hours")),
+        business.get("google_data_id"),
+        business.get("google_maps_url"),
+        latitude,
+        longitude,
+        business.get("scraped_at"),
+    ))
+
+
+def insert_google_maps_business_snapshots(
+    connection: sqlite3.Connection,
+    run_id: str,
+    businesses: list[dict],
+) -> None:
+    try:
+        for business in businesses:
+            insert_google_maps_business_snapshot(
+                connection=connection,
+                run_id=run_id,
+                business=business,
+            )
 
         connection.commit()
 

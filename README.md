@@ -108,6 +108,30 @@ data/reports/final_report.csv
 - rc_entities
 - rc_financial_records
 - rc_verifications
+- pipeline_runs
+- google_maps_business_snapshots
+
+## Monthly snapshots
+
+The app keeps both latest-state tables and historical snapshot tables.
+
+Latest-state tables are upserted:
+
+- google_maps_businesses
+- google_activity_scores
+- legal_entity_candidates
+- rc_verifications
+
+Historical runs are stored in:
+
+- pipeline_runs
+- google_maps_business_snapshots
+
+Each pipeline run gets a `run_id`, for example:
+
+20261017T213000Z
+
+This allows analysts to compare Google review counts, ratings, and listing metadata across monthly runs.
 
 ## Report columns
 ### The exported CSV includes:
@@ -191,6 +215,8 @@ Useful SQLs are provided under /queries folder.
 - RC financial data may lag behind current business activity.
 - Missing or low revenue signals do not prove wrongdoing.
 - Some businesses may operate legally under individual activity.
+- Historical snapshots allow monthly comparison, but full trend analysis is limited to fields currently snapshotted.
+- Google categories and map results depend on location, zoom level, pagination, and SerpApi behavior.
 
 ## Future improvements
 

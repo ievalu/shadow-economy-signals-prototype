@@ -17,12 +17,16 @@ REPORT_COLUMNS = [
     "google_review_count",
     "open_state",
     "website",
+    "google_maps_url",
+    "google_place_id",
     "google_activity_score",
     "google_activity_level",
+    "google_activity_reasons_json",
     "website_legal_name",
     "website_company_code",
     "website_vat_code",
     "website_confidence",
+    "evidence_url",
     "rc_match_status",
     "rc_match_method",
     "rc_ja_kodas",
@@ -78,14 +82,18 @@ def fetch_report_rows(connection) -> list[dict]:
             b.google_review_count,
             b.open_state,
             b.website,
+            b.google_maps_url,
+            b.google_place_id,
 
             s.google_activity_score,
             s.google_activity_level,
+            s.google_activity_reasons_json,
 
             l.legal_name AS website_legal_name,
             l.company_code AS website_company_code,
             l.vat_code AS website_vat_code,
             l.confidence_level AS website_confidence,
+            l.evidence_url,
 
             r.match_status AS rc_match_status,
             r.match_method AS rc_match_method,
@@ -135,6 +143,32 @@ def write_csv(rows: list[dict], output_path: str) -> None:
             writer.writerow(row)
 
 
+def print_summary(rows: list[dict]) -> None:
+    print(f"Exported rows: {len(rows)}")
+
+    review_flag_counts = {}
+
+    for row in rows:
+        review_flag = row.get("review_flag")
+        review_flag_counts[review_flag] = review_flag_counts.get(review_flag, 0) + 1
+
+    print("Review flag counts:")
+
+    for review_flag, count in sorted(review_flag_counts.items()):
+        print(f"  {review_flag}: {count}")
+
+    category_counts = {}
+
+    for row in rows:
+        category_key = row.get("category_key")
+        category_counts[category_key] = category_counts.get(category_key, 0) + 1
+
+    print("Category counts:")
+
+    for category_key, count in sorted(category_counts.items()):
+        print(f"  {category_key}: {count}")
+
+
 def main() -> None:
     database_path = os.getenv("DATABASE_PATH", "data/shadow_economy.sqlite")
     output_path = os.getenv("REPORT_OUTPUT_PATH", "data/reports/final_report.csv")
@@ -150,18 +184,8 @@ def main() -> None:
 
     connection.close()
 
-    print(f"Exported {len(rows)} rows to {output_path}")
-
-    review_flag_counts = {}
-
-    for row in rows:
-        review_flag = row.get("review_flag")
-        review_flag_counts[review_flag] = review_flag_counts.get(review_flag, 0) + 1
-
-    print("Review flag counts:")
-
-    for review_flag, count in sorted(review_flag_counts.items()):
-        print(f"  {review_flag}: {count}")
+    print(f"Exported report to {output_path}")
+    print_summary(rows)
 
 
 if __name__ == "__main__":

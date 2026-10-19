@@ -11,8 +11,10 @@ from app.database import (
     create_tables,
     get_connection,
     insert_google_activity_scores,
+    insert_google_maps_business_snapshots,
     insert_google_maps_businesses,
     insert_legal_entity_candidates,
+    insert_pipeline_run,
     insert_rc_verifications,
 )
 from app.serpapi_client import (
@@ -526,6 +528,7 @@ def process_category_job(
     client: Optional[SerpApiClient],
     connection,
     job: dict,
+    run_id: str,
 ) -> tuple[int, int, int]:
     category_key = job["category_key"]
     query = job["query"]
@@ -608,6 +611,12 @@ def process_category_job(
         businesses=businesses,
     )
 
+    insert_google_maps_business_snapshots(
+        connection=connection,
+        run_id=run_id,
+        businesses=businesses,
+    )
+
     calculated_at = datetime.now(timezone.utc).isoformat()
 
     score_records = build_activity_score_records(
@@ -655,7 +664,11 @@ def main() -> None:
     settings = get_settings()
     setup_logging(settings.log_level)
 
+    run_started_at = datetime.now(timezone.utc).isoformat()
+    run_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
     logger.info("Starting shadow economy activity scraper")
+    logger.info("Run ID: %s", run_id)
     logger.info("App mode: %s", settings.app_mode)
     logger.info("Provider: %s", settings.provider)
     logger.info("City: %s", settings.scrape_city)
@@ -685,6 +698,18 @@ def main() -> None:
     try:
         create_tables(connection)
 
+        insert_pipeline_run(
+            connection=connection,
+            run_record={
+                "run_id": run_id,
+                "started_at": run_started_at,
+                "run_label": f"{settings.scrape_city}_{run_id}",
+                "app_mode": settings.app_mode,
+                "scrape_city": settings.scrape_city,
+                "scrape_categories": settings.scrape_categories,
+            },
+        )
+
         jobs = get_selected_category_jobs(
             city=settings.scrape_city,
             selected_categories=settings.scrape_categories,
@@ -704,6 +729,7 @@ def main() -> None:
                     client=client,
                     connection=connection,
                     job=job,
+                    run_id=run_id,
                 )
 
                 total_businesses_saved += businesses_saved
