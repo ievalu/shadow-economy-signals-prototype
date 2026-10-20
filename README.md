@@ -35,7 +35,9 @@ The scraper checks pages such as:
 
 The pipeline expects a Registrų centras financial/legal CSV file.
 
-The full RC CSV is not committed to the repository because it can be large and should be downloaded separately from the official source.
+The full RC CSV is not committed to the repository because it can be large and should be downloaded separately from the official source, here:
+
+`https://www.registrucentras.lt/aduomenys/?byla=JAR_FA_RODIKLIAI_BLNS_2026_n.csv`
 
 Place the file here:
 
