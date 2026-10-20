@@ -55,6 +55,20 @@ Or separately:
 
 `python -m scripts.import_rc`
 
+## Multi-year RC import
+
+RC financial data is annual. The importer supports importing either one CSV file or multiple yearly CSV files.
+
+Single file:
+
+RC_CSV_PATH=data/raw_external/rc_financials.csv
+
+Multiple files:
+
+RC_CSV_DIR=data/raw_external/rc
+
+When RC_CSV_DIR is set, all .csv files in that folder are imported. This allows the analyst to compare multiple years of financial records and use the latest available revenue/profit signal.
+
 ## Local run
 ### Install dependencies:
 

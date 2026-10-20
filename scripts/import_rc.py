@@ -270,18 +270,48 @@ def import_rc_csv(
 
     connection.close()
 
+def get_rc_csv_paths() -> list[str]:
+    rc_csv_dir = os.getenv("RC_CSV_DIR")
+
+    if rc_csv_dir:
+        directory = Path(rc_csv_dir)
+
+        if not directory.exists():
+            raise FileNotFoundError(f"RC_CSV_DIR does not exist: {rc_csv_dir}")
+
+        csv_paths = sorted(directory.glob("*.csv"))
+
+        if not csv_paths:
+            raise FileNotFoundError(f"No CSV files found in RC_CSV_DIR: {rc_csv_dir}")
+
+        return [str(path) for path in csv_paths]
+
+    rc_csv_path = os.getenv("RC_CSV_PATH", "data/raw_external/rc_financials.csv")
+
+    return [rc_csv_path]
+
 
 def main() -> None:
     database_path = os.getenv("DATABASE_PATH", "data/shadow_economy.sqlite")
-    csv_path = os.getenv("RC_CSV_PATH", "data/raw_external/rc_financials.csv")
+    csv_paths = get_rc_csv_paths()
 
     print(f"Database path: {database_path}")
-    print(f"RC CSV path: {csv_path}")
+    print("RC CSV files:")
 
-    import_rc_csv(
-        database_path=database_path,
-        csv_path=csv_path,
-    )
+    for csv_path in csv_paths:
+        print(f"  - {csv_path}")
+
+    for csv_path in csv_paths:
+        print("")
+        print(f"Importing RC CSV: {csv_path}")
+
+        import_rc_csv(
+            database_path=database_path,
+            csv_path=csv_path,
+        )
+
+    print("")
+    print(f"Finished importing {len(csv_paths)} RC CSV file(s).")
 
 
 if __name__ == "__main__":
